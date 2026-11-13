@@ -1,3 +1,4 @@
+
 import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
 
@@ -8,34 +9,30 @@ const ai = new GoogleGenAI({
 async function main() {
   console.log("Sending request...");
 
-  const interaction = await ai.interactions.create(
-    {
-      model: "gemini-3.5-flash-lite",
+  const response = await ai.models.generateContent({
+    model: "gemini-3.5-flash-lite",
 
-      system_instruction: `
-  Yor are Jarvis, a smart review grader.
-  Analyze the given review and return its sentiment.
-  Return only one word:
-  positive, neutral, or negative.
-`,
-      input: `
-      Classify the review:
+    contents: `
+      You are a student information assistant.
 
-      Review: These headphones arrived quickly 
-      and look great, but the left earcup
-      stopped working after a week.
+      Return the information in this format:
 
-      Sentiment:
-      `,
+      Name: Hardeep
+      Role: Backend Developer
+
+      After the information, generate END.
+      Do not generate anything after END.
+    `,
+
+    config: {
+      temperature: 0.2,
+      maxOutputTokens: 150,
+      stopSequences: ["END"],
     },
-    {
-      timeout: 30000,
-    },
-  );
+  });
 
-  console.log("Sentiment:", interaction.output_text);
+  console.log("\nAI Response:\n");
+  console.log(response.text);
 }
 
-main().catch((error) => {
-  console.error("ERROR:", error);
-});
+main().catch(console.error);
