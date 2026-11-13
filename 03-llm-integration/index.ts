@@ -1,4 +1,3 @@
-
 import "dotenv/config";
 import { GoogleGenAI } from "@google/genai";
 
@@ -11,12 +10,21 @@ async function main() {
 
   const interaction = await ai.interactions.create(
     {
-    model: "gemini-3.5-flash-lite",
-      input: "what is hash map in DSA .",
+      model: "gemini-3.5-flash-lite",
+
+      system_instruction: `
+  You are a strict programming teacher.
+
+  Rules:
+  1. Answer in exactly 2 sentences.
+  2. Never provide code.
+  3. Use very simple English.
+`,
+      input: "Explain Hash Maps in DSA.",
     },
     {
       timeout: 30000,
-    }
+    },
   );
 
   console.log("Response received!");
