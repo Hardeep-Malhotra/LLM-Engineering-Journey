@@ -1,6 +1,6 @@
 
 import "dotenv/config";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI ,Type  } from "@google/genai";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -9,30 +9,54 @@ const ai = new GoogleGenAI({
 async function main() {
   console.log("Sending request...");
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3.5-flash-lite",
+const response = await ai.models.generateContent({
+  model: "gemini-3.5-flash-lite",
 
-    contents: `
-      You are a student information assistant.
+  contents: `
+    Extract product information from this text:
 
-      Return the information in this format:
+    "Sony wireless headphones are available for 2999 rupees."
 
-      Name: Hardeep
-      Role: Backend Developer
+    Return product details.
+  `,
 
-      After the information, generate END.
-      Do not generate anything after END.
-    `,
+  config: {
+    responseMimeType: "application/json",
 
-    config: {
-      temperature: 0.2,
-      maxOutputTokens: 150,
-      stopSequences: ["END"],
+    responseSchema: {
+      type: Type.OBJECT,
+
+      properties: {
+        productName: {
+          type: Type.STRING,
+          description: "Name of the product",
+        },
+
+        price: {
+          type: Type.NUMBER,
+          description: "Product price as a number",
+        },
+
+        available: {
+          type: Type.BOOLEAN,
+          description: "Whether the product is available",
+        },
+      },
+
+      required: ["productName", "price", "available"],
     },
-  });
+  },
+});
 
-  console.log("\nAI Response:\n");
+
+  console.log("\nStructured Output:\n");
   console.log(response.text);
+
+  const product = JSON.parse(response.text!);
+
+  console.log("\nProduct Name:", product.productName);
+  console.log("Price:", product.price);
+  console.log("Available:", product.available);
 }
 
 main().catch(console.error);
